@@ -25,15 +25,14 @@ class AddStateRow:
     # Directory containing .csv files that will be concatenated
     data_dir_state = "InputFiles/_AEIS_State"
     data_dir_district = "InputFiles/AEIS_District"
+    data_dir_output = "OutputFiles"
 
     def __init__(self):
-        self.ReadData()
-        #self.SortData()
-        #self.WriteData()
+        self.Process()
     #end __init__
 
-    def ReadData(self):
-        print ("\nRead Data")
+    def Process(self):
+        print ("\nProcessing started!")
         if not exists(self.data_dir_district):
             print ("\t Data Directory District Does Not Exist")
             exit()
@@ -57,22 +56,23 @@ class AddStateRow:
                 if splitext(district_item)[1] == ".csv":
                     district_file_path = join(self.data_dir_district,
                                               district_item)
-                    # ovde bih trebao provjeriti fajlove cija imena se poklapaju
                     district_filename = splitext(district_item)[0]
 
                     # Find proper state file
-                    state_file_path = self.FindProperStateFile(district_filename)
+                    state_file_path = self.FindProperStateFile(
+                                                district_filename)
                     
                     if state_file_path is not None:
-                        self.ConcatenateFiles(district_file_path,
-                                              state_file_path)
-                    #Pandas.read_csv method returns DataFrame object, so we append that object to the data_frames list
-                    #data_frames.append(read_csv(f, usecols=Columns, delimiter=",", header=0))
-            #self.data = concat(data_frames)  
-    #end ReadData
+                        data_frame_output = self.ConcatenateFiles(
+                                                district_file_path,
+                                                state_file_path)
+                        self.WriteData(data_frame_output, district_item)            
+    # end Process
+
     def FindProperStateFile(self, district_filename):
         """
-        It returns file
+        It returns state file that corresponds to district filename.
+        If corresponding file is not found, return value is None
         """
         for state_item in listdir(self.data_dir_state):
             # Check only .csv files
@@ -82,28 +82,52 @@ class AddStateRow:
                 state_filename = splitext(state_item)[0]
                 tmp = state_filename.replace("state", "district")
                 if district_filename == tmp:
-                    print(district_filename, state_filename)
                     return state_file_path
-#                 if full_file_name_district[:5] == full_file_name_state[:5]:
-#                     if full_file_name_district[14:] == full_file_name_state[11:]:
-#                         print(full_file_name_district)
-#                         print(full_file_name_state)
         else:
             print("There is no corresponding file for %s" % district_filename)
             return None
 
-    def ConcatenateFiles(self, district_file_path, state_file_path):
-        pass
-    # Ovdje odradi ucitavanje oba fajla i caprkanje po kolonama
-    # moja ideja je da se samo od state fajla izmijene kolone, tj da S zamijenimo sa D
-    # i da odradimo append ili nesto sto postoji za dataframeove
-    # http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html
-    # http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html
+    def ConcatenateFiles(self,
+                         district_file_path,
+                         state_file_path):
+        data_frame_district = read_csv(district_file_path,
+                                       delimiter=",",
+                                       header=0)
 
+        data_frame_state = read_csv(state_file_path,
+                                       delimiter=",",
+                                       header=0)
+
+        columns = dict()
+        for col in data_frame_state.columns:
+            if col not in ("DISTRICT", "YEAR"):
+                columns[col] = "D" + col[1:]
+        
+        data_frame_state.rename(columns=columns, inplace=True)
+
+        data_frame_output = concat((data_frame_district,
+                                    data_frame_state),
+                                    ignore_index=True)
+        return data_frame_output
+
+    def WriteData (self,
+                   data_frame,
+                   output_name):
+        """
+        Demonstrated how to write files in .csv and .xlsx format
+        DataFrame object has methods to_csv and to_excel
+        """
+
+        print ("\nWrite Data")
+        print ("\t Writing Output File As .csv")
+        data_frame.to_csv(join(self.data_dir_output, output_name),
+                          sep=",",
+                          index = False)
+    # end WriteData
 
 def main():
     AddStateRow()
     print("Finished")
-    
+
 if __name__ == "__main__":
     main()
