@@ -58,11 +58,14 @@ class AddStateRow:
                     district_file_path = join(self.data_dir_district,
                                               district_item)
                     # ovde bih trebao provjeriti fajlove cija imena se poklapaju
-                    full_file_name_district = splitext(district_item)[0]
+                    district_filename = splitext(district_item)[0]
 
                     # Find proper state file
-                    self.FindProperStateFile(full_file_name_district)
+                    state_file_path = self.FindProperStateFile(district_filename)
                     
+                    if state_file_path is not None:
+                        self.ConcatenateFiles(district_file_path,
+                                              state_file_path)
                     #Pandas.read_csv method returns DataFrame object, so we append that object to the data_frames list
                     #data_frames.append(read_csv(f, usecols=Columns, delimiter=",", header=0))
             #self.data = concat(data_frames)  
@@ -81,13 +84,22 @@ class AddStateRow:
                 if district_filename == tmp:
                     print(district_filename, state_filename)
                     return state_file_path
-        else:
-            print("There is no corresponding file for %s" % district_filename)
-
 #                 if full_file_name_district[:5] == full_file_name_state[:5]:
 #                     if full_file_name_district[14:] == full_file_name_state[11:]:
 #                         print(full_file_name_district)
 #                         print(full_file_name_state)
+        else:
+            print("There is no corresponding file for %s" % district_filename)
+            return None
+
+    def ConcatenateFiles(self, district_file_path, state_file_path):
+        pass
+    # Ovdje odradi ucitavanje oba fajla i caprkanje po kolonama
+    # moja ideja je da se samo od state fajla izmijene kolone, tj da S zamijenimo sa D
+    # i da odradimo append ili nesto sto postoji za dataframeove
+    # http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html
+    # http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html
+
 
 def main():
     AddStateRow()
