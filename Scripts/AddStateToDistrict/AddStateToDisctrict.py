@@ -17,7 +17,7 @@ http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.sort.html
 """
 
 from os import listdir
-from os.path import join, splitext
+from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 
@@ -34,11 +34,11 @@ class AddStateRow:
 
     def ReadData(self):
         print ("\nRead Data")
-        if not path.exists(DataDirDistrict):
+        if not exists(self.data_dir_district):
             print ("\t Data Directory District Does Not Exist")
             exit()
 
-        elif not path.exists(DataDirState):
+        elif not exists(self.data_dir_state):
             print ("\t Data Directory State Does Not Exist")
             exit()
 
@@ -67,25 +67,28 @@ class AddStateRow:
                     #data_frames.append(read_csv(f, usecols=Columns, delimiter=",", header=0))
             #self.data = concat(data_frames)  
     #end ReadData
-    def FindProperStateFile(self, full_file_name_district):
+    def FindProperStateFile(self, district_filename):
         """
-        
+        It returns file
         """
         for state_item in listdir(self.data_dir_state):
             # Check only .csv files
-            if path.splitext(state_item)[1] == ".csv":
-                state_file_path = path.join(self.data_dir_state, state_item)
+            if splitext(state_item)[1] == ".csv":
+                state_file_path = join(self.data_dir_state, state_item)
                 #get full name of the state file
-                full_file_name_state = path.splitext(state_item)[0]
-                tmp = full_file_name_state.replace("state", "district")
-                print(tmp)
-                if full_file_name_district == tmp:
-                    print(full_file_name_district, full_file_name_state)
-#                         print(full_file_name_state)
+                state_filename = splitext(state_item)[0]
+                tmp = state_filename.replace("state", "district")
+                if district_filename == tmp:
+                    print(district_filename, state_filename)
+                    return state_file_path
+        else:
+            print("There is no corresponding file for %s" % district_filename)
+
 #                 if full_file_name_district[:5] == full_file_name_state[:5]:
 #                     if full_file_name_district[14:] == full_file_name_state[11:]:
 #                         print(full_file_name_district)
 #                         print(full_file_name_state)
+
 def main():
     AddStateRow()
     print("Finished")
