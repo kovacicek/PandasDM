@@ -7,32 +7,22 @@ Created on 17.09.2015.
 @skype: kovacicek0508988
 '''
 
-"""
-References:
-http://pandas.pydata.org/pandas-docs/dev/merging.html
-http://pandas.pydata.org/pandas-docs/dev/generated/pandas.io.parsers.read_csv.html
-http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.to_csv.html
-http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.to_excel.html
-http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.sort.html
-"""
-
 from os import listdir
 from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 
 class AddStateRow:
-    # Directory containing .csv files that will be concatenated
     data_dir_state = "InputFiles/_AEIS_State"
     data_dir_district = "InputFiles/AEIS_District"
     data_dir_output = "OutputFiles"
 
     def __init__(self):
         self.Process()
-    #end __init__
+    # end __init__
 
     def Process(self):
-        print ("\nProcessing started!")
+        print ("Processing started")
         if not exists(self.data_dir_district):
             print ("\t Data Directory District Does Not Exist")
             exit()
@@ -86,29 +76,33 @@ class AddStateRow:
         else:
             print("There is no corresponding file for %s" % district_filename)
             return None
+    # end FindProperStateFile
 
     def ConcatenateFiles(self,
                          district_file_path,
                          state_file_path):
+        # read district .csv file
         data_frame_district = read_csv(district_file_path,
                                        delimiter=",",
                                        header=0)
-
+        # read state .csv file
         data_frame_state = read_csv(state_file_path,
                                        delimiter=",",
                                        header=0)
 
+        # replace column names in the state data frame
         columns = dict()
         for col in data_frame_state.columns:
             if col not in ("DISTRICT", "YEAR"):
                 columns[col] = "D" + col[1:]
-        
         data_frame_state.rename(columns=columns, inplace=True)
 
+        # concatenate district and state data frames
         data_frame_output = concat((data_frame_district,
                                     data_frame_state),
                                     ignore_index=True)
         return data_frame_output
+    # end ConcatenateFiles
 
     def WriteData (self,
                    data_frame,
@@ -118,8 +112,7 @@ class AddStateRow:
         DataFrame object has methods to_csv and to_excel
         """
 
-        print ("\nWrite Data")
-        print ("\t Writing Output File As .csv")
+        print ("\t Writing %s" % output_name)
         data_frame.to_csv(join(self.data_dir_output, output_name),
                           sep=",",
                           index = False)
