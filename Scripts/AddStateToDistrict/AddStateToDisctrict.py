@@ -7,7 +7,7 @@ Created on 17.09.2015.
 @skype: kovacicek0508988
 '''
 
-from os import listdir
+from os import listdir, mkdir
 from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
@@ -32,31 +32,25 @@ class AddStateRow:
             exit()
 
         else:
-            """Pandas.concat method takes a list of the DataFrame objects as the parameter.
-            That is the reason for creating data_frames list. For every .csv file that is read from
-            the DataDir folder, DataFrame object is created by using method read_csv, and those
-            objects are appended to the data_frames list. After reading all the files, concat method
-            is called with the parameter data_frames list.
-            Return value of the concat method is the new concatenated DataFrame"""
-
             data_frames = list()
             # List directory containing the .csv files
             for district_item in listdir(self.data_dir_district):
                 # Check only .csv files
-                if splitext(district_item)[1] == ".csv":
+                if (splitext(district_item)[1] == ".csv"
+                        and "_district_reference" not in district_item):
                     district_file_path = join(self.data_dir_district,
                                               district_item)
                     district_filename = splitext(district_item)[0]
 
                     # Find proper state file
                     state_file_path = self.FindProperStateFile(
-                                                district_filename)
-                    
+                        district_filename)
+
                     if state_file_path is not None:
                         data_frame_output = self.ConcatenateFiles(
-                                                district_file_path,
-                                                state_file_path)
-                        self.WriteData(data_frame_output, district_item)            
+                            district_file_path,
+                            state_file_path)
+                        self.WriteData(data_frame_output, district_item)
     # end Process
 
     def FindProperStateFile(self, district_filename):
@@ -68,7 +62,7 @@ class AddStateRow:
             # Check only .csv files
             if splitext(state_item)[1] == ".csv":
                 state_file_path = join(self.data_dir_state, state_item)
-                #get full name of the state file
+                # get full name of the state file
                 state_filename = splitext(state_item)[0]
                 tmp = state_filename.replace("state", "district")
                 if district_filename == tmp:
@@ -87,8 +81,8 @@ class AddStateRow:
                                        header=0)
         # read state .csv file
         data_frame_state = read_csv(state_file_path,
-                                       delimiter=",",
-                                       header=0)
+                                    delimiter=",",
+                                    header=0)
 
         # replace column names in the state data frame
         columns = dict()
@@ -98,25 +92,27 @@ class AddStateRow:
         data_frame_state.rename(columns=columns, inplace=True)
 
         # concatenate district and state data frames
-        data_frame_output = concat((data_frame_district,
-                                    data_frame_state),
-                                    ignore_index=True)
+        data_frame_output = concat((data_frame_district, data_frame_state),
+                                   ignore_index=True)
         return data_frame_output
     # end ConcatenateFiles
 
-    def WriteData (self,
-                   data_frame,
-                   output_name):
+    def WriteData(self,
+                  data_frame,
+                  output_name):
         """
         Demonstrated how to write files in .csv and .xlsx format
         DataFrame object has methods to_csv and to_excel
         """
 
+        if not exists(self.data_dir_output):
+            mkdir(self.data_dir_output)
         print ("\t Writing %s" % output_name)
         data_frame.to_csv(join(self.data_dir_output, output_name),
                           sep=",",
-                          index = False)
+                          index=False)
     # end WriteData
+
 
 def main():
     AddStateRow()
