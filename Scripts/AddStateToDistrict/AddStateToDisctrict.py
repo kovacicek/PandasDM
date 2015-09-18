@@ -7,7 +7,7 @@ Created on 17.09.2015.
 @skype: kovacicek0508988
 '''
 
-from os import listdir, mkdir
+from os import listdir, mkdir, remove
 from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
@@ -18,8 +18,15 @@ class AddStateRow:
     data_dir_output = "OutputFiles"
 
     def __init__(self):
+        self.CleanOutput()
         self.Process()
     # end __init__
+    
+    def CleanOutput(self):
+        if exists(self.data_dir_output):
+            for item in listdir(self.data_dir_output):
+                remove(join(self.data_dir_output, item))
+    # end CleanOutput
 
     def Process(self):
         print ("Processing started")
