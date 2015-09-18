@@ -37,7 +37,8 @@ class AddStateRow:
             for district_item in listdir(self.data_dir_district):
                 # Check only .csv files
                 if (splitext(district_item)[1] == ".csv"
-                        and "_district_reference" not in district_item):
+                        and "_district_reference" not in district_item
+                        and "_district_finance" not in district_item):
                     district_file_path = join(self.data_dir_district,
                                               district_item)
                     district_filename = splitext(district_item)[0]
