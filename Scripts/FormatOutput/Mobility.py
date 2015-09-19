@@ -13,21 +13,14 @@ from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
 Columns = [
-           "DPERRAKR",
-           "DPERRA1R",
-           "DPERRA2R",
-           "DPERRA3R",
-           "DPERRA4R",
-           "DPERRA5R",
-           "DPERRA6R",
-           "DPERRA7R",
-           "DPERRA8R"
+           "DPEMALLC",
+           "DPEMALLP"
            ]
 
 
-class Retention:
+class Mobility:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
-    data_dir_output = "RetentionOutputFiles"
+    data_dir_output = "MobilityOutputFiles"
 
     def __init__(self):
         self.CleanOutput()
@@ -85,7 +78,7 @@ class Retention:
 
 
 def main():
-    Retention()
+    Mobility()
     print("Finished")
 
 if __name__ == "__main__":

@@ -64,11 +64,14 @@ class StudentCounts:
                     file_path = path.join(self.data_dir_input, item)
 
                     # Pandas.read_csv method returns DataFrame object
-                    data_frame = read_csv(file_path,
+                    try:
+                        data_frame = read_csv(file_path,
                                           usecols=Columns,
                                           delimiter=",",
                                           header=0)
-                    self.WriteData(data_frame, item)
+                        self.WriteData(data_frame, item)
+                    except:
+                        pass
     # end ReadData
 
     def WriteData(self,
