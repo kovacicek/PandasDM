@@ -13,27 +13,21 @@ from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
 Columns = [
-           "DPETGEEC",
-           "DPETGKNC",
-           "DPETGPKC",
-           "DPETG01C",
-           "DPETG02C",
-           "DPETG03C",
-           "DPETG04C",
-           "DPETG05C",
-           "DPETG06C",
-           "DPETG07C",
-           "DPETG08C",
-           "DPETG09C",
-           "DPETG10C",
-           "DPETG11C",
-           "DPETG12C"
+           "DPERRAKR",
+           "DPERRA1R",
+           "DPERRA2R",
+           "DPERRA3R",
+           "DPERRA4R",
+           "DPERRA5R",
+           "DPERRA6R",
+           "DPERRA7R",
+           "DPERRA8R"
            ]
 
 
-class StudentCounts:
+class Retention:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
-    data_dir_output = "StudentCountsOutputFiles"
+    data_dir_output = "RetentionOutputFiles"
 
     def __init__(self):
         self.CleanOutput()
@@ -79,6 +73,7 @@ class StudentCounts:
         DataFrame object has methods to_csv and to_excel
         """
         if not exists(self.data_dir_output):
+            print("Does not exist")
             mkdir(self.data_dir_output)
         print("\t Writing %s" % output_name)
         data_frame.to_csv(join(self.data_dir_output, output_name),
@@ -88,7 +83,7 @@ class StudentCounts:
 
 
 def main():
-    StudentCounts()
+    Retention()
     print("Finished")
 
 if __name__ == "__main__":
