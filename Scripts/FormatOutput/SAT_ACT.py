@@ -12,36 +12,37 @@ from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
-Columns = [
-           "DA0CT13R",
-           "DA0CC13R",
-           "DA0CSA13R",
-           "DA0CAA13R",
-           "DB0CT13R",
-           "DB0CC13R",
-           "DB0CSA13R",
-           "DB0CAA13R",
-           "DH0CT13R",
-           "DH0CC13R",
-           "DH0CSA13R",
-           "DH0CAA13R",
-           "DW0CT13R",
-           "DW0CC13R",
-           "DW0CSA13R",
-           "DW0CAA13R",
-           "DF0CT13R",
-           "DF0CC13R",
-           "DF0CSA13R",
-           "DF0CAA13R",
-           "DM0CT13R",
-           "DM0CC13R",
-           "DM0CSA13R",
-           "DM0CAA13R",
-           "DE0CT13R",
-           "DE0CC13R",
-           "DE0CSA13R",
-           "DE0CAA13R"
-           ]
+DistrictColumns = ["DISTRICT",
+                   "YEAR",
+                   "DA0CT13R",
+                   "DA0CC13R",
+                   "DA0CSA13R",
+                   "DA0CAA13R",
+                   "DB0CT13R",
+                   "DB0CC13R",
+                   "DB0CSA13R",
+                   "DB0CAA13R",
+                   "DH0CT13R",
+                   "DH0CC13R",
+                   "DH0CSA13R",
+                   "DH0CAA13R",
+                   "DW0CT13R",
+                   "DW0CC13R",
+                   "DW0CSA13R",
+                   "DW0CAA13R",
+                   "DF0CT13R",
+                   "DF0CC13R",
+                   "DF0CSA13R",
+                   "DF0CAA13R",
+                   "DM0CT13R",
+                   "DM0CC13R",
+                   "DM0CSA13R",
+                   "DM0CAA13R",
+                   "DE0CT13R",
+                   "DE0CC13R",
+                   "DE0CSA13R",
+                   "DE0CAA13R"
+                   ]
 
 
 class SatAct:
@@ -79,12 +80,12 @@ class SatAct:
                     # Pandas.read_csv method returns DataFrame object
                     try:
                         data_frame = read_csv(file_path,
-                                          usecols=Columns,
+                                          usecols=DistrictColumns,
                                           delimiter=",",
                                           header=0)
                         self.WriteData(data_frame, item)
                     except:
-                        pass
+                        print("Error while reading %s" % item)
     # end ReadData
 
     def WriteData(self,
