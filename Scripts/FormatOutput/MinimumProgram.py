@@ -12,11 +12,9 @@ from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
-DistrictColumns = ["DISTRICT",
-                   "YEAR",
-                   "DA0GM13R",
-                   "DA0GM13N"
-                   ]
+Columns = ["A0GM*YY*R",
+           "A0GM*YY*N"
+           ]
 
 
 class MinimumProgram:
@@ -27,6 +25,24 @@ class MinimumProgram:
         self.CleanOutput()
         self.ReadData()
     # end __init__
+
+    def AdjustColumn(self, ds, year=None):
+        adjusted_columns = list()
+        # add district/campus and year to columns
+        if ds is 'D':
+            adjusted_columns.append('DISTRICT')
+        elif ds is 'C':
+            adjusted_columns.append('CAMPUS')
+        adjusted_columns.append('YEAR')
+
+        for column in Columns:
+            if ds is not None:
+                column = ds + column
+            if year is not None:
+                column = column.replace('*YY*', year)
+            adjusted_columns.append(column)
+        print('COlumns: ', adjusted_columns)
+        return adjusted_columns
 
     def CleanOutput(self):
         if exists(self.data_dir_output):
@@ -49,20 +65,22 @@ class MinimumProgram:
                 name_parts = name_of_file.split("_")
                 name_year = str(int(name_parts[0]) - 1)
 
-                for column in DistrictColumns:
-                    if column != "DISTRICT" and column != "YEAR":
-                        column_new = column[:5] + name_year[2:4] + column[7:8]
-                        loc = DistrictColumns.index(column)
-                        DistrictColumns.remove(column)
-                        DistrictColumns.insert(loc, column_new)
+#                 for column in DistrictColumns:
+#                     if column != "DISTRICT" and column != "YEAR":
+#                         column_new = column[:5] + name_year[2:4] + column[7:8]
+#                         loc = DistrictColumns.index(column)
+#                         DistrictColumns.remove(column)
+#                         DistrictColumns.insert(loc, column_new)
+                
 
                 if path.splitext(item)[1] == ".csv" and name_parts[2] == "student":
                     file_path = path.join(self.data_dir_input, item)
+                    adjusted_columns = self.AdjustColumn(ds='D', year=name_year[2:4])
 
                     # Pandas.read_csv method returns DataFrame object
                     try:
                         data_frame = read_csv(file_path,
-                                          usecols=DistrictColumns,
+                                          usecols=adjusted_columns,
                                           delimiter=",",
                                           header=0)
                         self.WriteData(data_frame, item)
