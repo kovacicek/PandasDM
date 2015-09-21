@@ -9,7 +9,8 @@ Created on 19.09.2015.
 
 from os import path, listdir, mkdir, remove
 from os.path import join, splitext, exists
-from pandas import ExcelWriter, read_csv, concat
+from pandas import ExcelWriter, read_csv, concat, merge
+from PyQt4.Qt import left
 
 # Columns that will be extracted from the files
 Columns = ["PST00FP",
@@ -25,11 +26,40 @@ DS = {'district': 'D',
 class TeacherExperience:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
     data_dir_output = "TeacherExperienceOutputFiles"
+    adjusted = []
+    dis_cam = "district"
 
     def __init__(self):
         self.CleanOutput()
         self.ReadData()
+        self.Merge()
     # end __init__
+
+    def Merge(self):
+        KeyColumns = self.adjusted
+        InputDir = "TeacherExperienceOutputFiles"
+
+        print("Start merging")
+
+        #Read Inputs
+        data_frames = list()
+        for item in listdir(InputDir):
+            if path.splitext(item)[1] == ".csv":
+                f = path.join(InputDir,item)
+                data_frames.append(read_csv(f, delimiter=",", header=0, low_memory=False)) 
+
+        #Merge data
+        data = data_frames[0]
+
+        for item in data_frames[1:]:
+            right_frame = item
+            data = data.append(right_frame)
+
+        #Write output
+        data.to_csv(InputDir + "\\" + self.dis_cam +"_TeacherExperience.csv", sep=",", index = False)
+
+        print ("Finished merge")
+    # end Merge
 
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
@@ -70,10 +100,12 @@ class TeacherExperience:
                 name_of_file = path.splitext(item)[0]
                 name_parts = name_of_file.split("_")
                 ds = name_parts[1]
+                self.dis_cam = ds
 
                 if path.splitext(item)[1] == ".csv" and name_parts[2] == "staff":
                     file_path = path.join(self.data_dir_input, item)
                     adjusted_columns = self.AdjustColumn(ds=ds)
+                    self.adjusted = adjusted_columns
 
                     # Pandas.read_csv method returns DataFrame object
                     try:

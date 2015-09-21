@@ -49,12 +49,41 @@ DS = {'district': 'D',
 class SatAct:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
     data_dir_output = "SatActOutputFiles"
+    adjusted = []
+    dis_cam = "district"
 
     def __init__(self):
         self.CleanOutput()
         self.ReadData()
+        self.Merge()
     # end __init__
     
+    def Merge(self):
+        KeyColumns = self.adjusted
+        InputDir = "SatActOutputFiles"
+
+        print("Start merging")
+
+        #Read Inputs
+        data_frames = list()
+        for item in listdir(InputDir):
+            if path.splitext(item)[1] == ".csv":
+                f = path.join(InputDir,item)
+                data_frames.append(read_csv(f, delimiter=",", header=0, low_memory=False)) 
+
+        #Merge data
+        data = data_frames[0]
+
+        for item in data_frames[1:]:
+            right_frame = item
+            data = data.append(right_frame)
+
+        #Write output
+        data.to_csv(InputDir + "\\" + self.dis_cam + "_SatAct.csv", sep=",", index = False)
+
+        print ("Finished merge")
+    # end Merge
+
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
         # add district/campus and year to columns
@@ -94,6 +123,7 @@ class SatAct:
                 name_parts = name_of_file.split("_")
                 name_year = str(int(name_parts[0]) - 1)
                 ds = name_parts[1]
+                self.dis_cam = ds
 
 #                 for column in DistrictColumns:
 #                     if column != "DISTRICT" and column != "YEAR":
@@ -110,6 +140,7 @@ class SatAct:
                 if path.splitext(item)[1] == ".csv" and name_parts[2] == "college":
                     file_path = path.join(self.data_dir_input, item)
                     adjusted_columns = self.AdjustColumn(ds=ds, year=name_year[2:4])
+                    self.adjusted = adjusted_columns
 
                     # Pandas.read_csv method returns DataFrame object
                     try:
