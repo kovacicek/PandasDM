@@ -31,9 +31,10 @@ class MinimumProgram:
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
         # add district/campus and year to columns
-        if ds is 'district':
+        print (ds)
+        if ds == 'district':
             adjusted_columns.append('DISTRICT')
-        elif ds is 'campus':
+        elif ds == 'campus':
             adjusted_columns.append('CAMPUS')
         adjusted_columns.append('YEAR')
 
