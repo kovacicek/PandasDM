@@ -47,6 +47,14 @@ class MinimumProgram:
                 # so only .csv files will be considered
                 name_of_file = path.splitext(item)[0]
                 name_parts = name_of_file.split("_")
+                name_year = str(int(name_parts[0]) - 1)
+
+                for column in DistrictColumns:
+                    if column != "DISTRICT" and column != "YEAR":
+                        column_new = column[:5] + name_year[2:4] + column[7:8]
+                        loc = DistrictColumns.index(column)
+                        DistrictColumns.remove(column)
+                        DistrictColumns.insert(loc, column_new)
 
                 if path.splitext(item)[1] == ".csv" and name_parts[2] == "student":
                     file_path = path.join(self.data_dir_input, item)
