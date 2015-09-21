@@ -12,14 +12,15 @@ from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
-Columns = [
-           "DPETALLC",
-           "DPETECOP",
-           "DPETLEPP",
-           "DPETBLAP",
-           "DPETHISP",
-           "DPETWHIP"
-           ]
+DistrictColumns = ["DISTRICT",
+                   "YEAR",
+                   "DPETALLC",
+                   "DPETECOP",
+                   "DPETLEPP",
+                   "DPETBLAP",
+                   "DPETHISP",
+                   "DPETWHIP"
+                   ]
 
 
 class Demographics:
@@ -57,12 +58,12 @@ class Demographics:
                     # Pandas.read_csv method returns DataFrame object
                     try:
                         data_frame = read_csv(file_path,
-                                          usecols=Columns,
+                                          usecols=DistrictColumns,
                                           delimiter=",",
                                           header=0)
                         self.WriteData(data_frame, item)
                     except:
-                        pass
+                        print("Error while reading %s" % item)
     # end ReadData
 
     def WriteData(self,
