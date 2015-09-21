@@ -12,37 +12,38 @@ from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
-DistrictColumns = ["DISTRICT",
-                   "YEAR",
-                   "DA0CT13R",
-                   "DA0CC13R",
-                   "DA0CSA13R",
-                   "DA0CAA13R",
-                   "DB0CT13R",
-                   "DB0CC13R",
-                   "DB0CSA13R",
-                   "DB0CAA13R",
-                   "DH0CT13R",
-                   "DH0CC13R",
-                   "DH0CSA13R",
-                   "DH0CAA13R",
-                   "DW0CT13R",
-                   "DW0CC13R",
-                   "DW0CSA13R",
-                   "DW0CAA13R",
-                   "DF0CT13R",
-                   "DF0CC13R",
-                   "DF0CSA13R",
-                   "DF0CAA13R",
-                   "DM0CT13R",
-                   "DM0CC13R",
-                   "DM0CSA13R",
-                   "DM0CAA13R",
-                   "DE0CT13R",
-                   "DE0CC13R",
-                   "DE0CSA13R",
-                   "DE0CAA13R"
-                   ]
+Columns = ["A0CT*YY*R",
+           "A0CC*YY*R",
+           "A0CSA*YY*R",
+           "A0CAA*YY*R",
+           "B0CT*YY*R",
+           "B0CC*YY*R",
+           "B0CSA*YY*R",
+           "B0CAA*YY*R",
+           "H0CT*YY*R",
+           "H0CC*YY*R",
+           "H0CSA*YY*R",
+           "H0CAA*YY*R",
+           "W0CT*YY*R",
+           "W0CC*YY*R",
+           "W0CSA*YY*R",
+           "W0CAA*YY*R",
+           "F0CT*YY*R",
+           "F0CC*YY*R",
+           "F0CSA*YY*R",
+           "F0CAA*YY*R",
+           "M0CT*YY*R",
+           "M0CC*YY*R",
+           "M0CSA*YY*R",
+           "M0CAA*YY*R",
+           "E0CT*YY*R",
+           "E0CC*YY*R",
+           "E0CSA*YY*R",
+           "E0CAA*YY*R"
+           ]
+
+DS = {'district': 'D',
+      'campus': 'C'}
 
 
 class SatAct:
@@ -53,6 +54,24 @@ class SatAct:
         self.CleanOutput()
         self.ReadData()
     # end __init__
+    
+    def AdjustColumn(self, ds, year=None):
+        adjusted_columns = list()
+        # add district/campus and year to columns
+        if ds is 'district':
+            adjusted_columns.append('DISTRICT')
+        elif ds is 'campus':
+            adjusted_columns.append('CAMPUS')
+        adjusted_columns.append('YEAR')
+
+        for column in Columns:
+            if ds is not None:
+                column = DS[ds] + column
+            if year is not None:
+                column = column.replace('*YY*', year)
+            adjusted_columns.append(column)
+        return adjusted_columns
+    # end AdjustColumns
 
     def CleanOutput(self):
         if exists(self.data_dir_output):
@@ -74,32 +93,35 @@ class SatAct:
                 name_of_file = path.splitext(item)[0]
                 name_parts = name_of_file.split("_")
                 name_year = str(int(name_parts[0]) - 1)
+                ds = name_parts[1]
 
-                for column in DistrictColumns:
-                    if column != "DISTRICT" and column != "YEAR":
-                        if column[5:6].isdigit():
-                            column_new = column[:5] + name_year[2:4] + column[7:8]
-                        else:
-                            column_new = column[:6] + name_year[2:4] + column[8:9]
-
-                        loc = DistrictColumns.index(column)
-                        DistrictColumns.remove(column)
-                        DistrictColumns.insert(loc, column_new)
-                        
-                print(DistrictColumns)
+#                 for column in DistrictColumns:
+#                     if column != "DISTRICT" and column != "YEAR":
+#                         if column[5:6].isdigit():
+#                             column_new = column[:5] + name_year[2:4] + column[7:8]
+#                         else:
+#                             column_new = column[:6] + name_year[2:4] + column[8:9]
+# 
+#                         loc = DistrictColumns.index(column)
+#                         DistrictColumns.remove(column)
+#                         DistrictColumns.insert(loc, column_new)
+        
 
                 if path.splitext(item)[1] == ".csv" and name_parts[2] == "college":
                     file_path = path.join(self.data_dir_input, item)
+                    adjusted_columns = self.AdjustColumn(ds=ds, year=name_year[2:4])
 
                     # Pandas.read_csv method returns DataFrame object
                     try:
                         data_frame = read_csv(file_path,
-                                          usecols=DistrictColumns,
+                                          usecols=adjusted_columns,
                                           delimiter=",",
                                           header=0)
                         self.WriteData(data_frame, item)
                     except:
                         print("Error while reading %s" % item)
+                        print("Columns: %s\n" % adjusted_columns)
+
     # end ReadData
 
     def WriteData(self,

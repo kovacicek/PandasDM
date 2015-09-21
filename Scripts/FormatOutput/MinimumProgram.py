@@ -16,6 +16,8 @@ Columns = ["A0GM*YY*R",
            "A0GM*YY*N"
            ]
 
+DS = {'district': 'D',
+      'campus': 'C'}
 
 class MinimumProgram:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
@@ -29,20 +31,20 @@ class MinimumProgram:
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
         # add district/campus and year to columns
-        if ds is 'D':
+        if ds is 'district':
             adjusted_columns.append('DISTRICT')
-        elif ds is 'C':
+        elif ds is 'campus':
             adjusted_columns.append('CAMPUS')
         adjusted_columns.append('YEAR')
 
         for column in Columns:
             if ds is not None:
-                column = ds + column
+                column = DS[ds] + column
             if year is not None:
                 column = column.replace('*YY*', year)
             adjusted_columns.append(column)
-        print('COlumns: ', adjusted_columns)
         return adjusted_columns
+    # end AdjustColumns
 
     def CleanOutput(self):
         if exists(self.data_dir_output):
@@ -64,6 +66,7 @@ class MinimumProgram:
                 name_of_file = path.splitext(item)[0]
                 name_parts = name_of_file.split("_")
                 name_year = str(int(name_parts[0]) - 1)
+                ds = name_parts[1]
 
 #                 for column in DistrictColumns:
 #                     if column != "DISTRICT" and column != "YEAR":
@@ -75,7 +78,7 @@ class MinimumProgram:
 
                 if path.splitext(item)[1] == ".csv" and name_parts[2] == "student":
                     file_path = path.join(self.data_dir_input, item)
-                    adjusted_columns = self.AdjustColumn(ds='D', year=name_year[2:4])
+                    adjusted_columns = self.AdjustColumn(ds=ds, year=name_year[2:4])
 
                     # Pandas.read_csv method returns DataFrame object
                     try:
@@ -86,6 +89,7 @@ class MinimumProgram:
                         self.WriteData(data_frame, item)
                     except:
                         print("Error while reading %s" % item)
+                        print("Columns: %s\n" % adjusted_columns)
     # end ReadData
 
     def WriteData(self,
