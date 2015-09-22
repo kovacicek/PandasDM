@@ -49,8 +49,6 @@ DS = {'district': 'D',
 class SatAct:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
     data_dir_output = "SatActOutputFiles"
-    adjusted = []
-    dis_cam = "district"
 
     def __init__(self):
         self.CleanOutput()
@@ -75,8 +73,7 @@ class SatAct:
         data = data_frames[0]
 
         for item in data_frames[1:]:
-            right_frame = item
-            data = data.append(right_frame)
+            data = data.append(item)
 
         #Write output
         data.to_csv(InputDir + "\\" + self.dis_cam + "_SatAct.csv", sep=",", index = False)
