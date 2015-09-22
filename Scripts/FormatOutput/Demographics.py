@@ -103,7 +103,8 @@ class Demographics:
                 ds = name_parts[1]
                 self.dis_cam = ds
 
-                if path.splitext(item)[1] == ".csv" and name_parts[2] == "student":
+                if(path.splitext(item)[1] == ".csv" 
+                   and name_parts[2] == "student"):
                     file_path = path.join(self.data_dir_input, item)
                     adjusted_columns = self.AdjustColumn(ds=ds)
                     self.adjusted = adjusted_columns
