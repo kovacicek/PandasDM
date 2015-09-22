@@ -26,7 +26,7 @@ DS = {'district': 'D',
 class Demographics:
     data_dir_input = "..\AddStateToDistrict\OutputFiles"
     data_dir_output = "DemographicsOutputFiles"
-    adjusted = []
+    adjusted = list()
     dis_cam = "district"
 
     def __init__(self):
@@ -37,34 +37,35 @@ class Demographics:
     
     def Merge(self):
         KeyColumns = self.adjusted
-        InputDir = "DemographicsOutputFiles"
+        print("Merge started")
 
-        print("Start merging")
-
-        #Read Inputs
+        # Read Inputs
         data_frames = list()
-        for item in listdir(InputDir):
+        for item in listdir(self.data_dir_output):
             if path.splitext(item)[1] == ".csv":
-                f = path.join(InputDir,item)
-                data_frames.append(read_csv(f, delimiter=",", header=0, low_memory=False)) 
-
-        #Merge data
+                f = path.join(self.data_dir_output, item)
+                data_frames.append(read_csv(f,
+                                            delimiter=",",
+                                            header=0,
+                                            low_memory=False)) 
+        # Merge data
         data = data_frames[0]
-
         for item in data_frames[1:]:
             right_frame = item
             data = data.append(right_frame)
 
-        #Write output
-        data.to_csv(InputDir + "\\" + self.dis_cam + "_Demographics.csv", sep=",", index = False)
+        # Write to output
+        merged_file = join(self.data_dir_output,
+                           "%s_Demographics.csv" % self.dis_cam)
+        data.to_csv(merged_file, sep=",", index = False)
 
-        print ("Finished merge")
+        print ("Merge finished")
     # end Merge
 
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
-        # add district/campus and year to columns
 
+        # add district/campus and year to columns
         if ds == 'district':
             adjusted_columns.append('DISTRICT')
         elif ds == 'campus':
