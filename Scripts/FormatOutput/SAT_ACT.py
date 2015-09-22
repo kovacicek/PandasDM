@@ -47,7 +47,7 @@ DS = {'district': 'D',
 
 
 class SatAct:
-    data_dir_input = "..\AddStateToDistrict\OutputFiles"
+    data_dir_input = "AEIS_Campus"
     data_dir_output = "SatActOutputFiles"
 
     def __init__(self):

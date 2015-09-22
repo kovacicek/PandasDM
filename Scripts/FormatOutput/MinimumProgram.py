@@ -20,7 +20,7 @@ DS = {'district': 'D',
       'campus': 'C'}
 
 class MinimumProgram:
-    data_dir_input = "..\AddStateToDistrict\OutputFiles"
+    data_dir_input = "AEIS_Campus"
     data_dir_output = "MinimumProgramOutputFiles"
     adjusted = []
     dis_cam = "district"

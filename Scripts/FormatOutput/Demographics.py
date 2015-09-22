@@ -24,7 +24,7 @@ DS = {'district': 'D',
       'campus': 'C'}
 
 class Demographics:
-    data_dir_input = "..\AddStateToDistrict\OutputFiles"
+    data_dir_input = "AEIS_Campus"
     data_dir_output = "DemographicsOutputFiles"
     adjusted = list()
     dis_cam = "district"

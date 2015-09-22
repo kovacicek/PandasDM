@@ -34,7 +34,7 @@ DS = {'district': 'D',
       'campus': 'C'}
 
 class StudentCounts:
-    data_dir_input = "..\AddStateToDistrict\OutputFiles"
+    data_dir_input = "AEIS_Campus"
     data_dir_output = "StudentCountsOutputFiles"
     adjusted = []
     dis_cam = "district"

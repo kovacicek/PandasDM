@@ -24,7 +24,7 @@ DS = {'district': 'D',
       'campus': 'C'}
 
 class TeacherExperience:
-    data_dir_input = "..\AddStateToDistrict\OutputFiles"
+    data_dir_input = "AEIS_Campus"
     data_dir_output = "TeacherExperienceOutputFiles"
     adjusted = []
     dis_cam = "district"
@@ -112,7 +112,8 @@ class TeacherExperience:
                         data_frame = read_csv(file_path,
                                           usecols=adjusted_columns,
                                           delimiter=",",
-                                          header=0)
+                                          header=0,
+                                          low_memory=False)
                         self.WriteData(data_frame, item)
                     except:
                         print("Error while reading %s" % item)
