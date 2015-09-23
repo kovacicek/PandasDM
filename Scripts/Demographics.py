@@ -26,9 +26,9 @@ DS = {'district': 'D',
 class Demographics:
     script_name = "Demographics"
     # inputs = {ds : (input_dir, output_dir)}
-    inputs = {"campus": (join("..", "..", "Inputs", "AEIS_Campus"),
+    inputs = {"campus": (join("..", "Inputs", "AEIS_Campus"),
                          "%sCampus" % script_name),
-              "district": (join("..", "..", "Inputs", "DistrictState"),
+              "district": (join("..", "Inputs", "DistrictState"),
                            "%sDistrict" % script_name)
              }
 
