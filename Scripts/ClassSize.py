@@ -1,5 +1,5 @@
 '''
-Created on 19.09.2015.
+Created on 22.09.2015.
 
 @author: Milan Kovacic
 @e-mail: kovacicek@hotmail.com
@@ -12,22 +12,27 @@ from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat
 
 # Columns that will be extracted from the files
-Columns = ["PETALLC",
-           "PETECOP",
-           "PETLEPP",
-           "PETBLAP",
-           "PETHISP",
-           "PETWHIP"
+Columns = ["PCTG01A",
+           "PCTG02A",
+           "PCTG03A",
+           "PCTG04A",
+           "PCTG05A",
+           "PCTG06A",
+           "PCTGKGA",
+           "PCTGMEA",
+           "PCTENGA",
+           "PCTFLAA",
+           "PCTMATA",
+           "PCTSCIA",
+           "PCTSOCA"
            ]
 
 DS = {'district': 'D',
       'campus': 'C'}
 
-class Demographics:
+class ClassSize:
     data_dir_input = "AEIS_Campus"
-    data_dir_output = "DemographicsOutputFiles"
-    adjusted = list()
-    dis_cam = "district"
+    data_dir_output = "ClassSizeOutputFiles"
 
     def __init__(self):
         self.CleanOutput()
@@ -37,35 +42,34 @@ class Demographics:
     
     def Merge(self):
         KeyColumns = self.adjusted
-        print("Merge started")
+        InputDir = "ClassSizeOutputFiles"
 
-        # Read Inputs
+        print("Start merging")
+
+        #Read Inputs
         data_frames = list()
-        for item in listdir(self.data_dir_output):
+        for item in listdir(InputDir):
             if path.splitext(item)[1] == ".csv":
-                f = path.join(self.data_dir_output, item)
-                data_frames.append(read_csv(f,
-                                            delimiter=",",
-                                            header=0,
-                                            low_memory=False)) 
-        # Merge data
+                f = path.join(InputDir,item)
+                data_frames.append(read_csv(f, delimiter=",", header=0, low_memory=False)) 
+
+        #Merge data
         data = data_frames[0]
+
         for item in data_frames[1:]:
             right_frame = item
             data = data.append(right_frame)
 
-        # Write to output
-        merged_file = join(self.data_dir_output,
-                           "%s_Demographics.csv" % self.dis_cam)
-        data.to_csv(merged_file, sep=",", index = False)
+        #Write output
+        data.to_csv(InputDir + "\\" + self.dis_cam + "_ClassSize.csv", sep=",", index = False)
 
-        print ("Merge finished")
+        print ("Finished merge")
     # end Merge
 
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
-
         # add district/campus and year to columns
+
         if ds == 'district':
             adjusted_columns.append('DISTRICT')
         elif ds == 'campus':
@@ -103,8 +107,7 @@ class Demographics:
                 ds = name_parts[1]
                 self.dis_cam = ds
 
-                if(path.splitext(item)[1] == ".csv" 
-                   and name_parts[2] == "student"):
+                if path.splitext(item)[1] == ".csv" and name_parts[2] == "staff":
                     file_path = path.join(self.data_dir_input, item)
                     adjusted_columns = self.AdjustColumn(ds=ds)
                     self.adjusted = adjusted_columns
@@ -114,11 +117,11 @@ class Demographics:
                         data_frame = read_csv(file_path,
                                           usecols=adjusted_columns,
                                           delimiter=",",
-                                          header=0)
+                                          header=0,
+                                          low_memory=False)
                         self.WriteData(data_frame, item)
                     except:
                         print("Error while reading %s" % item)
-                        print("Columns: %s\n" % adjusted_columns)
     # end ReadData
 
     def WriteData(self,
@@ -138,7 +141,7 @@ class Demographics:
 
 
 def main():
-    Demographics()
+    ClassSize()
     print("Finished")
 
 if __name__ == "__main__":
