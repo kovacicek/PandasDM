@@ -57,7 +57,8 @@ class Demographics:
                 data = data.append(item)
     
             # Write to output
-            merged_file = join(value[1],
+            merged_file = join("..",
+                               "MergedFiles",
                                "%s_%s.csv" % (self.script_name, key))
             data.to_csv(merged_file, sep=",", index = False)
             print("\t %s files merged into: %s" % (key, merged_file))
