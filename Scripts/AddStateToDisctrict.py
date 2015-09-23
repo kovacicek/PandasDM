@@ -13,9 +13,9 @@ from pandas import ExcelWriter, read_csv, concat
 
 
 class AddStateRow:
-    data_dir_state = "InputFiles/_AEIS_State"
-    data_dir_district = "InputFiles/AEIS_District"
-    data_dir_output = "OutputFiles"
+    data_dir_state = join("..", "Inputs", "_AEIS_State")
+    data_dir_district = join("..", "Inputs", "AEIS_District")
+    data_dir_output = join("..", "Inputs", "DistrictState")
 
     def __init__(self):
         self.CleanOutput()
@@ -26,6 +26,7 @@ class AddStateRow:
         if exists(self.data_dir_output):
             for item in listdir(self.data_dir_output):
                 remove(join(self.data_dir_output, item))
+            print("Output directory %s cleaned" % self.data_dir_output)
     # end CleanOutput
 
     def Process(self):
@@ -98,6 +99,7 @@ class AddStateRow:
             if col not in ("DISTRICT", "YEAR"):
                 columns[col] = "D" + col[1:]
         data_frame_state.rename(columns=columns, inplace=True)
+        data_frame_state['DISTRICT'].ix[0] = "'1"
 
         # concatenate district and state data frames
         data_frame_output = concat((data_frame_district, data_frame_state),
