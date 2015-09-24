@@ -34,10 +34,14 @@ DS = {'district': 'D',
       'campus': 'C'}
 
 class StudentCounts:
-    data_dir_input = "AEIS_Campus"
-    data_dir_output = "StudentCountsOutputFiles"
-    adjusted = []
-    dis_cam = "district"
+    
+    script_name = "StudentCounts"
+    # inputs = {ds : (input_dir, output_dir)}
+    inputs = {"campus": (join("..", "Inputs", "AEIS_Campus"),
+                         "%sCampus" % script_name),
+              "district": (join("..", "Inputs", "DistrictState"),
+                           "%sDistrict" % script_name)
+              }
 
     def __init__(self):
         self.CleanOutput()
@@ -46,29 +50,29 @@ class StudentCounts:
     # end __init__
 
     def Merge(self):
-        KeyColumns = self.adjusted
-        InputDir = "StudentCountsOutputFiles"
-
         print("Start merging")
 
-        #Read Inputs
-        data_frames = list()
-        for item in listdir(InputDir):
-            if path.splitext(item)[1] == ".csv":
-                f = path.join(InputDir,item)
-                data_frames.append(read_csv(f, delimiter=",", header=0, low_memory=False)) 
-
-        #Merge data
-        data = data_frames[0]
-
-        for item in data_frames[1:]:
-            right_frame = item
-            data = data.append(right_frame)
-
-        #Write output
-        data.to_csv(InputDir + "\\" + self.dis_cam + "_StudentCounts.csv", sep=",", index = False)
-
-        print ("Finished merge")
+        # Read Inputs
+        for key, value in self.inputs.items():
+            data_frames = list()
+            for item in listdir(value[1]):
+                if path.splitext(item)[1] == ".csv":
+                    f = path.join(value[1], item)
+                    data_frames.append(read_csv(f,
+                                                delimiter=",",
+                                                header=0,
+                                                low_memory=False))
+            # Merge data
+            data = data_frames[0]
+            for item in data_frames[1:]:
+                data = data.append(item)
+    
+            # Write to output
+            merged_file = join("..",
+                               "MergedFiles",
+                               "%s_%s.csv" % (self.script_name, key))
+            data.to_csv(merged_file, sep=",", index = False)
+            print("\t %s files merged into: %s" % (key, merged_file))
     # end Merge
 
     def AdjustColumn(self, ds, year=None):
@@ -79,6 +83,8 @@ class StudentCounts:
             adjusted_columns.append('DISTRICT')
         elif ds == 'campus':
             adjusted_columns.append('CAMPUS')
+        else:
+            print("Can't determine district or campus: ds = %" % ds)
         adjusted_columns.append('YEAR')
 
         for column in Columns:
@@ -91,54 +97,60 @@ class StudentCounts:
     # end AdjustColumns
 
     def CleanOutput(self):
-        if exists(self.data_dir_output):
-            for item in listdir(self.data_dir_output):
-                remove(join(self.data_dir_output, item))
+        print("Clean Output")
+        for key, value in self.inputs.items(): 
+            if exists(value[1]):
+                for item in listdir(value[1]):
+                    remove(join(value[1], item))
+                print("\t %s output dir cleaned: %s" % (key, value[1]))
     # end CleanOutput
 
     def ReadData(self):
         print("\nRead Data")
-        if not path.exists(self.data_dir_input):
-            print("\t Data Directory Does Not Exist")
-            exit()
-        else:
+        for ds, value in self.inputs.items():
+            if not path.exists(value[0]):
+                print("\t Data Directory Does Not Exist %s" % value[0])
+                exit()
+            else:
 
-            # List directory containing the .csv files
-            for item in listdir(self.data_dir_input):
-                # Check the extension of the files,
-                # so only .csv files will be considered
-                name_of_file = path.splitext(item)[0]
-                name_parts = name_of_file.split("_")
-                ds = name_parts[1]
-                self.dis_cam = ds
+                # List directory containing the .csv files
+                for item in listdir(value[0]):
+                    # Check the extension of the files,
+                    # so only .csv files will be considered
+                    name_of_file = path.splitext(item)[0]
+                    name_parts = name_of_file.split("_")
 
-                if path.splitext(item)[1] == ".csv" and name_parts[2] == "student":
-                    file_path = path.join(self.data_dir_input, item)
-                    adjusted_columns = self.AdjustColumn(ds=ds)
-                    self.adjusted = adjusted_columns
+                    if(path.splitext(item)[1] == ".csv" 
+                       and name_parts[2] == "student"):
+                        file_path = path.join(value[0], item)
+                        adjusted_columns = self.AdjustColumn(ds=ds)
+                        self.adjusted = adjusted_columns
 
-                    # Pandas.read_csv method returns DataFrame object
-                    try:
-                        data_frame = read_csv(file_path,
-                                          usecols=adjusted_columns,
-                                          delimiter=",",
-                                          header=0)
-                        self.WriteData(data_frame, item)
-                    except:
-                        print("Error while reading %s" % item)
+                        # Pandas.read_csv method returns DataFrame object
+                        try:
+                            data_frame = read_csv(file_path,
+                                              usecols=adjusted_columns,
+                                              delimiter=",",
+                                              header=0,
+                                              low_memory=False)
+                            self.WriteData(data_frame, item, value[1])
+                        except:
+                            print("Error while reading %s" % item)
+                            print("Columns: %s\n" % adjusted_columns)
     # end ReadData
 
     def WriteData(self,
                   data_frame,
-                  output_name):
+                  output_name,
+                  output_dir):
         """
         Demonstrated how to write files in .csv and .xlsx format
         DataFrame object has methods to_csv and to_excel
         """
-        if not exists(self.data_dir_output):
-            mkdir(self.data_dir_output)
+        if not exists(output_dir):
+            mkdir(output_dir)
         print("\t Writing %s" % output_name)
-        data_frame.to_csv(join(self.data_dir_output, output_name),
+        data_frame.to_csv(join(output_dir, output_name),
                           sep=",",
                           index=False)
     # end WriteData
