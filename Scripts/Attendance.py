@@ -41,6 +41,7 @@ class Attendance:
               "district": (join("..", "Inputs", "DistrictState"),
                            "%sDistrict" % script_name)
              }
+    columns_dict = dict()
 
     def __init__(self):
         self.CleanOutput()
@@ -82,18 +83,26 @@ class Attendance:
         # add district/campus and year to columns
         if ds == 'district':
             adjusted_columns.append('DISTRICT')
+            self.columns_dict['DISTRICT'] = 'DISTRICT'
         elif ds == 'campus':
             adjusted_columns.append('CAMPUS')
+            self.columns_dict['CAMPUS'] = 'CAMPUS'
         else:
             print("Can't determine district or campus: ds = %" % ds)
         adjusted_columns.append('YEAR')
+        self.columns_dict['YEAR'] = 'YEAR'
+        # sometimes in files stands year
+        adjusted_columns.append('year')
+        self.columns_dict['year'] = 'YEAR'
 
         for column in Columns:
             if ds is not None:
                 column = DS[ds] + column
+                key = column
             if year is not None:
                 column = column.replace('*YY*', year)
             adjusted_columns.append(column)
+            self.columns_dict[column] = key
         return adjusted_columns
     # end AdjustColumns
 
@@ -108,7 +117,6 @@ class Attendance:
 
     def ReadData(self):
         print("\nRead Data")
-        
         for ds, value in self.inputs.items():
             if not path.exists(value[0]):
                 print("\t Data Directory Does Not Exist %s" % value[0])
@@ -120,21 +128,16 @@ class Attendance:
                     # so only .csv files will be considered
                     name_of_file = path.splitext(item)[0]
                     name_parts = name_of_file.split("_")
-                    name_year = str(int(name_parts[0]) - 1)
-    
+                    name_year = str(int(name_parts[0]) - 1)[2:4]
+
                     if(path.splitext(item)[1] == ".csv" 
                        and name_parts[2] == "noner"):
                         file_path = path.join(value[0], item)
-                        adjusted_columns = self.AdjustColumn(ds=ds, year=name_year[2:4])
+                        adjusted_columns = self.AdjustColumn(ds=ds,
+                                                             year=name_year)
                         self.adjusted = adjusted_columns
                         
-                        # change read data column by column and
-                        # put into data frame
-
-                        i = 0
-                        data_frame = DataFrame()
-                        data_fs = DataFrame()
-
+                        data_frames = list()
                         for col in adjusted_columns:
                             try:
                                 data_f = read_csv(file_path,
@@ -142,29 +145,20 @@ class Attendance:
                                                   delimiter=",",
                                                   header=0,
                                                   low_memory=False)
-                                print("Data F: " + data_f)
-                                data_frame[i] = data_f
-                                i = i + 1
+                                data_frames.append(data_f)
                             except:
-                                print("Error while reading column %s" % col)
-                                
-                        #data = data_frame[0]        
-                        #for it in data_frame[1:]:
-                        #    right_frame = it       
-                        #    data = merge(data, right_frame, on=adjusted_columns, sort=False)      
-                        
+                                if col != 'year' and col != 'YEAR':
+                                    print("No such column %s" % col)
+                        data_frame = data_frames[0]
+                        for right_frame in data_frames[1:]:
+                            data_frame = merge(data_frame,
+                                               right_frame,
+                                               left_index=True,
+                                               right_index=True,
+                                               sort=False)
+                        data_frame.rename(columns=self.columns_dict,
+                                          inplace=True)
                         self.WriteData(data_frame, item, value[1])
-                        # Pandas.read_csv method returns DataFrame object
-                        #try:
-                        #    data_frame = read_csv(file_path,
-                        #                      usecols=adjusted_columns,
-                        ##                      delimiter=",",
-                        #                      header=0,
-                        #                      low_memory=False)
-                        #    self.WriteData(data_frame, item, value[1])
-                        #except:
-                        #    print("Error while reading %s" % item)
-                        #    print("Columns: %s\n" % adjusted_columns)
     # end ReadData
 
     def WriteData(self,
