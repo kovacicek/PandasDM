@@ -13,20 +13,20 @@ from pandas import ExcelWriter, read_csv, concat, merge
 from pandas.core.frame import DataFrame
 
 # Columns that will be extracted from the files
-Columns = ["B0AT*YY*R",
-           "A0AT*YY*R",
-           "30AT*YY*R",
-           "R0AT*YY*R",
-           "E0AT*YY*R",
-           "F0AT*YY*R",
-           "H0AT*YY*R",
-           "L0AT*YY*R",
-           "M0AT*YY*R",
-           "I0AT*YY*R",
-           "40AT*YY*R",
-           "S0AT*YY*R",
-           "20AT*YY*R",
-           "W0AT*YY*R"
+Columns = ["B0AT*R",
+           "A0AT*R",
+           "30AT*R",
+           "R0AT*R",
+           "E0AT*R",
+           "F0AT*R",
+           "H0AT*R",
+           "L0AT*R",
+           "M0AT*R",
+           "I0AT*R",
+           "40AT*R",
+           "S0AT*R",
+           "20AT*R",
+           "W0AT*R"
            ]
 
 DS = {'district': 'D',
@@ -48,14 +48,15 @@ class Attendance:
         self.ReadData()
         self.Merge()
     # end __init__
-    
+
     def Merge(self):
         print("Start merging")
 
         # Read Inputs
         for key, value in self.inputs.items():
             data_frames = list()
-            
+
+            # read generated files and append those data frames to the list
             for item in listdir(value[1]):
                 if path.splitext(item)[1] == ".csv":
                     f = path.join(value[1], item)
@@ -63,7 +64,8 @@ class Attendance:
                                                 delimiter=",",
                                                 header=0,
                                                 low_memory=False))
-            # Merge data
+
+            # Merge data frames into one data frame
             data = data_frames[0]
             for item in data_frames[1:]:
                 data = data.append(item)
@@ -74,9 +76,26 @@ class Attendance:
                                "%s_%s.csv" % (self.script_name, key))
             print("Merged file: " + merged_file)
 
-            data.to_csv(merged_file, sep=",", index = False)
+            # get output columns from self.columns_dict dictionary
+            cols = self.GetOutputCols(ds=key) 
+            
+            # write merged data frame to csv file
+            data.to_csv(merged_file, sep=",", index = False, columns=cols)
             print("\t %s files merged into: %s" % (key, merged_file))
     # end Merge
+
+    def GetOutputCols(self, ds):
+        """
+        From self.columns_dict dictionary extract columns that will be written
+        to the output file. This is being done because of writing order
+        """
+        a = list()
+        a.append("DISTRICT" if ds == 'district' else "CAMPUS")
+        a.append("YEAR")
+        b= [x for x in set(self.columns_dict.values()) if
+                (x[0].lower() == ds[0].lower())]
+        return a + b
+    # end GetOutputCols
 
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
@@ -100,7 +119,7 @@ class Attendance:
                 column = DS[ds] + column
                 key = column
             if year is not None:
-                column = column.replace('*YY*', year)
+                column = column.replace('*', year)
             adjusted_columns.append(column)
             self.columns_dict[column] = key
         return adjusted_columns
@@ -147,7 +166,8 @@ class Attendance:
                                                   low_memory=False)
                                 data_frames.append(data_f)
                             except:
-                                if col != 'year' and col != 'YEAR':
+                                # year column in files can be YEAR or year
+                                if col.lower() != 'year':
                                     print("No such column %s" % col)
                         data_frame = data_frames[0]
                         for right_frame in data_frames[1:]:
