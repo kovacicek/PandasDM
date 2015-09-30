@@ -31,8 +31,6 @@ Columns = ["AGC4*R",
 DS = {'district': 'D',
       'campus': 'C'}
 
-# (name_parts[2] == "completion" 
-#                            or name_parts[2] == "completioner"))
 class Graduates:
     script_name = "Graduates"
     # inputs = {ds : (input_dir, output_dir)}
@@ -110,9 +108,11 @@ class Graduates:
             print("Can't determine district or campus: ds = %" % ds)
         adjusted_columns.append('YEAR')
         self.columns_dict['YEAR'] = 'YEAR'
-        # sometimes in files stands year
+        # sometimes in files stands year or Year
         adjusted_columns.append('year')
         self.columns_dict['year'] = 'YEAR'
+        adjusted_columns.append('Year')
+        self.columns_dict['Year'] = 'YEAR'
 
         for column in Columns:
             if ds is not None:
@@ -156,7 +156,7 @@ class Graduates:
                         adjusted_columns = self.AdjustColumn(ds=ds,
                                                              year=name_year)
                         self.adjusted = adjusted_columns
-                        
+
                         data_frames = list()
                         for col in adjusted_columns:
                             try:
