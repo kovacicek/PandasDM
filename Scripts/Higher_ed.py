@@ -90,6 +90,7 @@ class HigherEd:
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
 
+        # calculate previous year
         year_minus_one = str(int(year) - 1)
         # add district/campus and year to columns
         if ds == 'district':
