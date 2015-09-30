@@ -13,6 +13,10 @@ from pandas import ExcelWriter, read_csv, concat, merge
 from pandas.core.frame import DataFrame
 
 # Columns that will be extracted from the files
+# We have to check columns
+# Columns with # means previous year
+# Do we have to add these columns?
+# Please ask Robert for explanation!
 Columns = ["AHEE*R",
            "AHEE#R",
            "AHEC*R",
