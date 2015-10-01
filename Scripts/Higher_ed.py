@@ -13,14 +13,8 @@ from pandas import ExcelWriter, read_csv, concat, merge
 from pandas.core.frame import DataFrame
 
 # Columns that will be extracted from the files
-# We have to check columns
-# Columns with # means previous year
-# Do we have to add these columns?
-# Please ask Robert for explanation!
 Columns = ["AHEE*R",
-           "AHEE#R",
            "AHEC*R",
-           "AHEC#R"
            ]
 
 DS = {'district': 'D',
@@ -94,8 +88,6 @@ class HigherEd:
     def AdjustColumn(self, ds, year=None):
         adjusted_columns = list()
 
-        # calculate previous year
-        year_minus_one = str(int(year) - 1)
         # add district/campus and year to columns
         if ds == 'district':
             adjusted_columns.append('DISTRICT')
@@ -117,7 +109,6 @@ class HigherEd:
                 key = column
             if year is not None:
                 column = column.replace('*', year)
-                column = column.replace('#', year_minus_one)
             adjusted_columns.append(column)
             self.columns_dict[column] = key
         return adjusted_columns
