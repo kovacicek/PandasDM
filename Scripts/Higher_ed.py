@@ -72,7 +72,7 @@ class HigherEd:
 
             # get output columns from self.columns_dict dictionary
             cols = self.GetOutputCols(ds=key) 
-            
+
             # write merged data frame to csv file
             data.to_csv(merged_file, sep=",", index = False, columns=cols)
             print("\t %s files merged into: %s" % (key, merged_file))
