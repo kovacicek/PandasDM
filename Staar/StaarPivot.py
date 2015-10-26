@@ -60,19 +60,18 @@ class StaarPivot:
                 print("File path: " + file_path)
                 # Pandas.read_csv method returns DataFrame object
                 # processing starts from here
-                with open(file_path, "r") as f:
-                    # skip header
-                    f.readline()
-                    
-                    # process
-                    
+                # 21901001,15,6,21901,college station, A&M Cons HS, a1, EOC, English, 284, 4006, 243, 150
+
                 try:
                     data_frame = read_csv(file_path,
                                           usecols=Columns,
                                           delimiter=",",
                                           header=0,
                                           low_memory=False)
-                    self.WriteData(data_frame, filename)
+                    #self.WriteData(data_frame, filename)
+                    print("test")
+                    data_frame = data_frame.stack() #.unstack(1)
+                    self.WriteData(data_frame, "test")
                 except:
                     print("Error while reading %s" % filename)
     # end ReadData
@@ -100,7 +99,7 @@ def main():
     for item_dir in listdir(staar_merged):
         input_dir = join(staar_merged, item_dir)
         output_dir = join(staar_pivot, item_dir)   
-        StaarFilter(input_dir, output_dir)
+        StaarPivot(input_dir, output_dir)
     print("Finished")
 
 if __name__ == "__main__":
