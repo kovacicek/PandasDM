@@ -9,8 +9,9 @@ Created on 26.10.2015.
 
 from os import path, listdir, mkdir, remove
 from os.path import join, splitext, exists
-from pandas import ExcelWriter, read_csv, concat, merge
+from pandas import ExcelWriter, read_csv, concat, merge, pivot, pivot_table
 from pandas.core.frame import DataFrame
+from blaze.expr.reductions import nrows
 #from bokeh.sampledata.stocks import filename
 
 # Columns that will be extracted from the files
@@ -25,6 +26,13 @@ Columns = ["CAMPUS",
            "Language",
            "all"
            ]
+
+values = [
+          "rs",
+          "d",
+          "satis_rec_nm",
+          "satis_ph1_nm"
+          ]
 
 class StaarPivot:
     script_name = "StaarPivot"
@@ -70,7 +78,8 @@ class StaarPivot:
                                           low_memory=False)
                     #self.WriteData(data_frame, filename)
                     print("test")
-                    data_frame = data_frame.stack() #.unstack(1)
+                    data_frame = data_frame.pivot("Category", values)
+                    print("test2")
                     self.WriteData(data_frame, "test")
                 except:
                     print("Error while reading %s" % filename)
