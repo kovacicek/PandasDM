@@ -24,7 +24,8 @@ Columns = ["CAMPUS",
            "Subject",
            "Grade",
            "Language",
-           "all"
+           "all",
+           "Category"
            ]
 
 values = [
@@ -78,9 +79,34 @@ class StaarPivot:
                                           low_memory=False)
                     #self.WriteData(data_frame, filename)
                     print("test")
-                    data_frame = data_frame.pivot("Category", values)
-                    print("test2")
-                    self.WriteData(data_frame, "test")
+                    #data_frame["Status"] = data_frame["Status"].astype("Category")
+                    #data_frame["Status"].cat.set_categories(["rs","d","satis_rec_nm","satis_ph1_nm"], inplace=True)
+                    #data = pivot_table(data_frame, values='all', columns='Category') #.unstack(-1) #, columns="Category")#(data_frame, "Category", values)
+                    #data = data_frame.pivot('Category', 'all')
+                    #data = data_frame.unstack('all', -1)
+                    #print(data_frame)
+                    
+                    for row in data_frame.iterrows():
+                        #if column
+                        #print(row[1]["Category"])
+                        #print(i)
+                        print("----------------------")
+                        if row[1]["Category"] == "rs":
+                            print("RS")
+                            data_frame["rs"] = row[1]["all"]
+                        elif row[1]["Category"] == "d":
+                            print("D")
+                            data_frame["d"] = row[1]["all"]
+                        elif row[1]["Category"] == "satis_rec_nm":
+                            print("satis_rec_nm")
+                            data_frame["satis_rec_nm"] = row[1]["all"]
+                        elif row[1]["Category"] == "satis_ph1_nm":
+                            print("satis_ph1_nm")
+                            data_frame["satis_ph1_nm"] = row[1]["all"]
+                    
+                    print(data_frame)
+                    #print("test2")
+                    self.WriteData(data_frame, "test.csv")
                 except:
                     print("Error while reading %s" % filename)
     # end ReadData
@@ -103,11 +129,11 @@ class StaarPivot:
 
 def main():
     staar_merged = "4_staar_merged"
-    staar_pivot = "5_staar_pivot"
+    staar_pivot = "5_staar_pivoted"
 
     for item_dir in listdir(staar_merged):
         input_dir = join(staar_merged, item_dir)
-        output_dir = join(staar_pivot, item_dir)   
+        output_dir = join(staar_pivot, item_dir)
         StaarPivot(input_dir, output_dir)
     print("Finished")
 
