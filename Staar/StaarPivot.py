@@ -9,9 +9,8 @@ Created on 26.10.2015.
 
 from os import path, listdir, mkdir, remove
 from os.path import join, splitext, exists
-from pandas import ExcelWriter, read_csv, concat, merge
+from pandas import ExcelWriter, read_csv, concat, merge, pivot, pivot_table
 from pandas.core.frame import DataFrame
-#from bokeh.sampledata.stocks import filename
 
 # Columns that will be extracted from the files
 Columns = ["CAMPUS",
@@ -23,8 +22,27 @@ Columns = ["CAMPUS",
            "Subject",
            "Grade",
            "Language",
+           "Category",
            "all"
            ]
+
+ColumnsEXIT = ["CAMPUS",
+           "YEAR",
+           "REGION",
+           "DISTRICT",
+           "DNAME",
+           "CNAME",
+           "Subject",
+           "Grade",
+           "Language",
+           ]
+
+values = [
+          "rs",
+          "d",
+          "satis_rec_nm",
+          "satis_ph1_nm"
+          ]
 
 class StaarPivot:
     script_name = "StaarPivot"
@@ -60,21 +78,23 @@ class StaarPivot:
                 print("File path: " + file_path)
                 # Pandas.read_csv method returns DataFrame object
                 # processing starts from here
-                with open(file_path, "r") as f:
-                    # skip header
-                    f.readline()
-                    
-                    # process
-                    
-                try:
-                    data_frame = read_csv(file_path,
-                                          usecols=Columns,
-                                          delimiter=",",
-                                          header=0,
-                                          low_memory=False)
-                    self.WriteData(data_frame, filename)
-                except:
-                    print("Error while reading %s" % filename)
+                # 21901001,15,6,21901,college station, A&M Cons HS, a1, EOC, English, 284, 4006, 243, 150
+
+                # try:
+                data_frame = read_csv(file_path,
+                                      usecols=Columns,
+                                      delimiter=",",
+                                      header=0,
+                                      nrows=12960,
+                                      low_memory=False)
+                print (data_frame.columns[:-2])
+                data_frame = data_frame.pivot(index="CAMPUS",
+                                              columns="Category",
+                                              values="all")
+                print(data_frame)
+                self.WriteData(data_frame, "test.csv")
+               # except:
+                   # print("Error while reading %s" % filename)
     # end ReadData
 
     def WriteData(self,
@@ -89,7 +109,7 @@ class StaarPivot:
         print("\t Writing %s" % output_name)
         data_frame.to_csv(join(self.output_dir, output_name),
                           sep=",",
-                          index=False)
+                          index=True)
     # end WriteData
 
 
@@ -100,7 +120,7 @@ def main():
     for item_dir in listdir(staar_merged):
         input_dir = join(staar_merged, item_dir)
         output_dir = join(staar_pivot, item_dir)   
-        StaarFilter(input_dir, output_dir)
+        StaarPivot(input_dir, output_dir)
     print("Finished")
 
 if __name__ == "__main__":
