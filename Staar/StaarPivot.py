@@ -11,6 +11,11 @@ from os import path, listdir, mkdir, remove
 from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat, merge, pivot, pivot_table
 from pandas.core.frame import DataFrame
+<<<<<<< HEAD
+=======
+from blaze.expr.reductions import nrows
+#from bokeh.sampledata.stocks import filename
+>>>>>>> branch 'master' of https://github.com/kovacicek/PandasDM
 
 # Columns that will be extracted from the files
 Columns = ["CAMPUS",
@@ -22,10 +27,16 @@ Columns = ["CAMPUS",
            "Subject",
            "Grade",
            "Language",
+<<<<<<< HEAD
            "Category",
            "all"
+=======
+           "all",
+           "Category"
+>>>>>>> branch 'master' of https://github.com/kovacicek/PandasDM
            ]
 
+<<<<<<< HEAD
 ColumnsEXIT = ["CAMPUS",
            "YEAR",
            "REGION",
@@ -37,6 +48,8 @@ ColumnsEXIT = ["CAMPUS",
            "Language",
            ]
 
+=======
+>>>>>>> branch 'master' of https://github.com/kovacicek/PandasDM
 values = [
           "rs",
           "d",
@@ -80,6 +93,7 @@ class StaarPivot:
                 # processing starts from here
                 # 21901001,15,6,21901,college station, A&M Cons HS, a1, EOC, English, 284, 4006, 243, 150
 
+<<<<<<< HEAD
                 # try:
                 data_frame = read_csv(file_path,
                                       usecols=Columns,
@@ -95,6 +109,46 @@ class StaarPivot:
                 self.WriteData(data_frame, "test.csv")
                # except:
                    # print("Error while reading %s" % filename)
+=======
+                try:
+                    data_frame = read_csv(file_path,
+                                          usecols=Columns,
+                                          delimiter=",",
+                                          header=0,
+                                          low_memory=False)
+                    #self.WriteData(data_frame, filename)
+                    print("test")
+                    #data_frame["Status"] = data_frame["Status"].astype("Category")
+                    #data_frame["Status"].cat.set_categories(["rs","d","satis_rec_nm","satis_ph1_nm"], inplace=True)
+                    #data = pivot_table(data_frame, values='all', columns='Category') #.unstack(-1) #, columns="Category")#(data_frame, "Category", values)
+                    #data = data_frame.pivot('Category', 'all')
+                    #data = data_frame.unstack('all', -1)
+                    #print(data_frame)
+                    
+                    for row in data_frame.iterrows():
+                        #if column
+                        #print(row[1]["Category"])
+                        #print(i)
+                        print("----------------------")
+                        if row[1]["Category"] == "rs":
+                            print("RS")
+                            data_frame["rs"] = row[1]["all"]
+                        elif row[1]["Category"] == "d":
+                            print("D")
+                            data_frame["d"] = row[1]["all"]
+                        elif row[1]["Category"] == "satis_rec_nm":
+                            print("satis_rec_nm")
+                            data_frame["satis_rec_nm"] = row[1]["all"]
+                        elif row[1]["Category"] == "satis_ph1_nm":
+                            print("satis_ph1_nm")
+                            data_frame["satis_ph1_nm"] = row[1]["all"]
+                    
+                    print(data_frame)
+                    #print("test2")
+                    self.WriteData(data_frame, "test.csv")
+                except:
+                    print("Error while reading %s" % filename)
+>>>>>>> branch 'master' of https://github.com/kovacicek/PandasDM
     # end ReadData
 
     def WriteData(self,
@@ -115,11 +169,15 @@ class StaarPivot:
 
 def main():
     staar_merged = "4_staar_merged"
-    staar_pivot = "5_staar_pivot"
+    staar_pivot = "5_staar_pivoted"
 
     for item_dir in listdir(staar_merged):
         input_dir = join(staar_merged, item_dir)
+<<<<<<< HEAD
         output_dir = join(staar_pivot, item_dir)   
+=======
+        output_dir = join(staar_pivot, item_dir)
+>>>>>>> branch 'master' of https://github.com/kovacicek/PandasDM
         StaarPivot(input_dir, output_dir)
     print("Finished")
 

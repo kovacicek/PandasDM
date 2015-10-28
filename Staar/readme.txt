@@ -2,6 +2,7 @@ staar_original	- input files
 staar_wide	- output from .exe
 staar_merged	- vertical merge of staar_wide files
 staar_filtered	- extracted columns from staar_merged files (rs, d, satis_rec_nm, satis_ph1_nm)
+staar_pivoted
 
 .exe process
 select input
