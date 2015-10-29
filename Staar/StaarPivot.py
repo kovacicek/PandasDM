@@ -15,7 +15,7 @@ from pandas.core.frame import DataFrame
 # Columns related to pivoting
 index_col = "CAMPUS"
 pivot_col = "Category"
-value_col = "ecoy"
+value_col = "sexm"
 
 # Columns that will be extracted from the files
 Columns = [index_col,
@@ -69,7 +69,7 @@ class StaarPivot:
                 try:
                     df = read_csv(file_path,
                                   usecols=Columns,
-                                  delimiter=";",
+                                  delimiter=",",
                                   header=0,
                                   low_memory=False)
 
