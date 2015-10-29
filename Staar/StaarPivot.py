@@ -66,33 +66,34 @@ class StaarPivot:
 
                 try:
                     df = read_csv(file_path,
-                                          usecols=Columns,
-                                          delimiter=",",
-                                          header=0,
-                                          low_memory=False)
+                                  usecols=Columns,
+                                  delimiter=",",
+                                  header=0,
+                                  low_memory=False)
+
                     # remove duplicate entries from the df
                     # they will produce ValueError: can't reshape...
                     # if not removed
                     df.drop_duplicates(subset=[index_col, pivot_col], inplace=True)
-        
+
                     # create pivot table from df
                     df_pivot = df.pivot(index=index_col,
                                                   columns=pivot_col,
                                                   values=value_col)
-        
+
                     # Campus column is considered as an index in the df_pivot
                     # add it as a column to the frame
                     df_pivot[index_col] = df_pivot.index
-        
+
                     # remove pivot_col and value_col from df
                     df.drop([pivot_col, value_col], axis=1, inplace=True)
-        
+
                     # remove duplicates from df
                     df.drop_duplicates(inplace=True)
-        
+
                     # merge df and df_pivot based on index_col
                     df_merged = merge(df, df_pivot, on=index_col, how='left')
-        
+
                     # write df_merged to file
                     self.WriteData(df_merged, filename)
                 except OSError:
