@@ -71,6 +71,7 @@ class StaarFilter:
         """
         if not exists(self.output_dir):
             mkdir(self.output_dir)
+        output_name = "%s_filtered.csv" % output_name.split(" - ")[0]
         print("\t Writing %s" % output_name)
         data_frame.to_csv(join(self.output_dir, output_name),
                           sep=",",

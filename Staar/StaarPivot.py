@@ -12,21 +12,13 @@ from os.path import join, splitext, exists
 from pandas import ExcelWriter, read_csv, concat, merge, pivot, pivot_table
 from pandas.core.frame import DataFrame
 
-# Columns that will be extracted from the files
-Columns = ["CAMPUS",
-           "YEAR",
-           "REGION",
-           "DISTRICT",
-           "DNAME",
-           "CNAME",
-           "Subject",
-           "Grade",
-           "Language",
-           "all",
-           "Category"
-           ]
+# Columns related to pivoting
+index_col = "CAMPUS"
+pivot_col = "Category"
+value_col = "all"
 
-ColumnsEXIT = ["CAMPUS",
+# Columns that will be extracted from the files
+Columns = [index_col,
            "YEAR",
            "REGION",
            "DISTRICT",
@@ -35,6 +27,8 @@ ColumnsEXIT = ["CAMPUS",
            "Subject",
            "Grade",
            "Language",
+           pivot_col,
+           value_col
            ]
 
 
@@ -65,30 +59,44 @@ class StaarPivot:
         print("\nRead Data")
         # List directory containing the .csv files
         for filename in listdir(self.input_dir):
-
             name_of_file = path.splitext(filename)[0]
             if(path.splitext(filename)[1] == ".csv"):
                 file_path = path.join(self.input_dir, filename)
                 print("File path: " + file_path)
-                # Pandas.read_csv method returns DataFrame object
-                # processing starts from here
-                # 21901001,15,6,21901,college station, A&M Cons HS, a1, EOC, English, 284, 4006, 243, 150
 
-                # try:
-                data_frame = read_csv(file_path,
-                                      usecols=Columns,
-                                      delimiter=",",
-                                      header=0,
-                                      nrows=12960,
-                                      low_memory=False)
-                print (data_frame.columns[:-2])
-                data_frame = data_frame.pivot(index="CAMPUS",
-                                              columns="Category",
-                                              values="all")
-                print(data_frame)
-                self.WriteData(data_frame, "test.csv")
-               # except:
-                   # print("Error while reading %s" % filename)
+                try:
+                    df = read_csv(file_path,
+                                          usecols=Columns,
+                                          delimiter=",",
+                                          header=0,
+                                          low_memory=False)
+                    # remove duplicate entries from the df
+                    # they will produce ValueError: can't reshape...
+                    # if not removed
+                    df.drop_duplicates(subset=[index_col, pivot_col], inplace=True)
+        
+                    # create pivot table from df
+                    df_pivot = df.pivot(index=index_col,
+                                                  columns=pivot_col,
+                                                  values=value_col)
+        
+                    # Campus column is considered as an index in the df_pivot
+                    # add it as a column to the frame
+                    df_pivot[index_col] = df_pivot.index
+        
+                    # remove pivot_col and value_col from df
+                    df.drop([pivot_col, value_col], axis=1, inplace=True)
+        
+                    # remove duplicates from df
+                    df.drop_duplicates(inplace=True)
+        
+                    # merge df and df_pivot based on index_col
+                    df_merged = merge(df, df_pivot, on=index_col, how='left')
+        
+                    # write df_merged to file
+                    self.WriteData(df_merged, filename)
+                except OSError:
+                   print("Error while reading %s" % filename)
     # end ReadData
 
     def WriteData(self,
@@ -101,9 +109,10 @@ class StaarPivot:
         if not exists(self.output_dir):
             mkdir(self.output_dir)
         print("\t Writing %s" % output_name)
-        data_frame.to_csv(join(self.output_dir, output_name),
+        data_frame.to_csv(join(self.output_dir,
+                              output_name.replace("merged", "pivoted")),
                           sep=",",
-                          index=True)
+                          index=False)
     # end WriteData
 
 
