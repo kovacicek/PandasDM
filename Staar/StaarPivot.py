@@ -69,7 +69,7 @@ class StaarPivot:
                 try:
                     df = read_csv(file_path,
                                   usecols=Columns,
-                                  delimiter=",",
+                                  delimiter=";",
                                   header=0,
                                   low_memory=False)
 
@@ -89,7 +89,7 @@ class StaarPivot:
         """
         if not exists(self.output_dir):
             mkdir(self.output_dir)
-        output_name = output_name.replace("merged", "pivoted")
+        output_name = output_name.replace("merged", "pivoted_%s" % value_col)
         print("\t Writing %s" % output_name)
         # fix the column names after multiindexing
         data_frame.reset_index(col_level=1, inplace=True)
