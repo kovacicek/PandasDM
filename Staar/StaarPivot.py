@@ -31,18 +31,6 @@ Columns = [index_col,
            value_col
            ]
 
-Cols = [index_col,
-           "YEAR",
-           "REGION",
-           "DISTRICT",
-           "DNAME",
-           "CNAME",
-           "Subject",
-           "Grade",
-           "Language",
-           pivot_col
-           ]
-
 
 class StaarPivot:
     script_name = "StaarPivot"
@@ -85,33 +73,8 @@ class StaarPivot:
                                   header=0,
                                   low_memory=False)
 
-                    # remove duplicate entries from the df
-                    # they will produce ValueError: can't reshape...
-                    # if not removed
-                    # df.drop_duplicates(subset=[index_col, pivot_col], inplace=True)
+                    df_pivot = df.set_index(Columns[:-1]).unstack(pivot_col)
 
-                    # create pivot table from df
-#                     df_pivot = df.pivot(index=index_col,
-#                                         columns=pivot_col,
-#                                         values=value_col)
-
-                    df_pivot = df.set_index(Cols).unstack(pivot_col)
-
-#                     # Campus column is considered as an index in the df_pivot
-#                     # add it as a column to the frame
-#                     df_pivot[index_col] = df_pivot.index
-# 
-#                     # remove pivot_col and value_col from df
-#                     df.drop([pivot_col, value_col], axis=1, inplace=True)
-# 
-#                     # remove duplicates from df
-#                     df.drop_duplicates(inplace=True)
-# 
-#                     # merge df and df_pivot based on index_col
-#                     df_merged = merge(df, df_pivot, on=index_col, how='left')
-# 
-#                     # write df_merged to file
-#                     self.WriteData(df_merged, filename)
                     self.WriteData(df_pivot, filename)
                 except OSError:
                    print("Error while reading %s" % filename)
@@ -126,11 +89,16 @@ class StaarPivot:
         """
         if not exists(self.output_dir):
             mkdir(self.output_dir)
+        output_name = output_name.replace("merged", "pivoted")
         print("\t Writing %s" % output_name)
+        # fix the column names after multiindexing
+        data_frame.reset_index(col_level=1, inplace=True)
+        data_frame.columns = data_frame.columns.get_level_values(1)
+
         data_frame.to_csv(join(self.output_dir,
-                              output_name.replace("merged", "pivoted")),
+                              output_name),
                           sep=",",
-                          index=True)
+                          index=False)
     # end WriteData
 
 
