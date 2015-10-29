@@ -20,7 +20,7 @@ class StaarMerge:
         self.input_dir = input_dir
         self.output_dir = output_dir
 
-        self.CleanOutput()
+        # self.CleanOutput()
         self.ReadData()
         self.Merge()
     # end __init__
@@ -34,6 +34,8 @@ class StaarMerge:
             for item in listdir(self.output_dir):
                 remove(join(self.output_dir, item))
             print("\t output dir cleaned: %s" % (self.output_dir))
+        else:
+            print("\t output dir does not exist: %s" % (self.output_dir))
     # end CleanOutput
 
     def ReadData(self):
@@ -75,12 +77,13 @@ class StaarMerge:
     # end Merge
 
 def main():
-    staar_filtered = "3_staar_filtered"
+    staar_filter = "3_staar_filtered"
     staar_merged = "4_staar_merged"
 
-    for item_dir in listdir(staar_filtered):
-        input_dir = join(staar_filtered, item_dir)
-        output_dir = join(staar_merged, item_dir)   
+    for item_dir in listdir(staar_filter):
+        input_dir = join(staar_filter, item_dir)
+        # output_dir = join(staar_merged, item_dir)
+        output_dir = staar_merged
         StaarMerge(input_dir, output_dir)
     print("Finished")
 
