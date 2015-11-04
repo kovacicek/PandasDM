@@ -52,7 +52,6 @@ class StaarDSFilter:
             name_of_file = path.splitext(filename)[0]
             if(path.splitext(filename)[1] == ".csv"):
                 file_path = path.join(self.input_dir, filename)
-                print("File path: " + file_path)
                 # Pandas.read_csv method returns DataFrame object
                 try:
                     df = read_csv(file_path,
@@ -61,8 +60,7 @@ class StaarDSFilter:
                                   low_memory=False)
                     df = df[df['Category'].isin(values)]
                     if "state" in name_of_file:
-                        #df['DISTRICT'] = "'1"
-                        df.insert(0, 'DISTRICT', "'1")
+                        df.insert(0, 'DISTRICT', "1")
                     self.WriteData(df, filename)
                 except:
                     print("Error while reading %s" % filename)
