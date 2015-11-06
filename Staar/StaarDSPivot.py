@@ -61,8 +61,6 @@ class StaarDSPivot:
             name_of_file = path.splitext(filename)[0]
             if(path.splitext(filename)[1] == ".csv"):
                 file_path = path.join(self.input_dir, filename)
-                print("File path: " + file_path)
-
                 try:
                     df = read_csv(file_path,
                                   usecols=Columns,
