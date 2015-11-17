@@ -110,6 +110,12 @@ class StaarPivotAll:
         data_frame.reset_index(col_level=1, inplace=True)
         data_frame.columns = data_frame.columns.get_level_values(1)
 
+        # add demo column
+        if "campus" in output_name:
+            data_frame.insert(9, 'demo', value_col)
+        else:
+            data_frame.insert(7, 'demo', value_col)
+
         data_frame.to_csv(join(self.output_dir,
                               output_name),
                           sep=",",

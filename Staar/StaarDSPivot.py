@@ -17,8 +17,7 @@ pivot_col = "Category"
 value_col = "sexf"
 
 # Columns that will be extracted from the files
-Columns = [#index_col,
-           "YEAR",
+Columns = ["YEAR",
            "REGION",
            "DISTRICT",
            "DNAME",
